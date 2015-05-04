@@ -1,6 +1,5 @@
 var express = require('express');
 var bodyParser = require('body-parser');
-var sleep = require('sleep');
 var PythonShell = require('python-shell');
 
 
@@ -65,17 +64,6 @@ function get_progress_func(id) {
 function calculate_sum(id, number) {
     py_sum_func(number, get_progress_func(id));
 }
-
-//function sum_func(number, progress_func) {
-//    var s = 0;
-//    progress_func({total: number});
-//    for (var i = 0; i < number; i++) {
-//        progress_func({progress: i+1});
-//        sleep.usleep(10000);
-//        s += i;
-//    }
-//    progress_func({result: s});
-//}
 
 function py_sum_func(number, progress_func) {
     var pyshell = new PythonShell('tasks.py', {
