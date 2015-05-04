@@ -41,6 +41,7 @@
                 var source = new EventSource("/events/");
                 source.addEventListener('message', function(e) {
                     var data = JSON.parse(e.data);
+                    console.log(data);
                     if (data.id !== undefined) {
                         id = data.id;
                         enable_button();
