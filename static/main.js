@@ -24,10 +24,10 @@ $(document).ready(function () {
             "number": number,
             "id": id
         })
-            .fail(function() {
-                console.log( "error" );
-            })
-            .always(enable_button);
+        .fail(function() {
+            console.log( "error" );
+            enable_button();
+        });
     });
     var source = new EventSource("/events/");
     source.addEventListener('message', function(e) {
@@ -42,6 +42,7 @@ $(document).ready(function () {
             set_progress_bar_value(data.progress);
         } else if (data.result !== undefined) {
             set_result(data.result);
+            enable_button();
         }
     }, false);
 });
