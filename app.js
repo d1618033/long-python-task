@@ -25,12 +25,12 @@ app.post('/', function (req, res){
 var openConnections = [];
 
 app.get('/events/', function (req, res) {
-    req.socket.setTimeout(Infinity);
     res.writeHead(200, {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
         'Connection': 'keep-alive'
     });
+    res.write("retry: 10000\n");
     res.write('\n');
     openConnections.push(res);
     write_message(res, {id: openConnections.length-1});
