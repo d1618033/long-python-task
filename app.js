@@ -33,7 +33,7 @@ app.get('/events/', function (req, res) {
     res.write("retry: 10000\n");
     res.write('\n');
     openConnections.push(res);
-    write_message(res, {id: openConnections.length-1});
+    write_message(res, openConnections.length-1, "id");
 
     req.on("close", function() {
         var toRemove;
@@ -48,16 +48,17 @@ app.get('/events/', function (req, res) {
     });
 });
 
-function write_message(res, message) {
+function write_message(res, message, event) {
     var d = new Date();
     res.write('id: ' + d.getMilliseconds() + '\n');
-    res.write('data:' +  JSON.stringify(message) + '\n\n'); // Note the extra newline
+    res.write('event: ' + event + '\n');
+    res.write('data:' +  message + '\n\n'); // Note the extra newline
 }
 
 function get_progress_func(id) {
     var res = openConnections[id];
-    return function (progress) {
-        write_message(res, progress);
+    return function (name, value) {
+        write_message(res, value, name);
     }
 }
 
@@ -74,7 +75,8 @@ function py_sum_func(number, progress_func) {
 
     pyshell.on('message', function (message) {
         console.log(message);
-        progress_func(JSON.parse(message));
+        var parsed_message = JSON.parse(message);
+        progress_func(parsed_message.name, parsed_message.value);
     });
 
     pyshell.end(function (err) {

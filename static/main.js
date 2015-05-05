@@ -30,19 +30,26 @@ $(document).ready(function () {
         });
     });
     var source = new EventSource("/events/");
-    source.addEventListener('message', function(e) {
-        var data = JSON.parse(e.data);
-        console.log(data);
-        if (data.id !== undefined) {
-            id = data.id;
-            enable_button();
-        } else if (data.total !== undefined) {
-            set_max_progress_bar(data.total);
-        } else if (data.progress !== undefined) {
-            set_progress_bar_value(data.progress);
-        } else if (data.result !== undefined) {
-            set_result(data.result);
-            enable_button();
-        }
-    }, false);
+    function addEventListener(source, event, callback) {
+        source.addEventListener(event, function(e) {
+            console.log(event);
+            console.log(e.data);
+            var data = e.data;
+            callback(data);
+        }, false);
+    }
+    addEventListener(source, 'id', function(data) {
+        id = data;
+        enable_button();
+    });
+    addEventListener(source, 'total', function(data) {
+        set_max_progress_bar(data);
+    });
+    addEventListener(source, 'progress', function(data) {
+        set_progress_bar_value(data);
+    });
+    addEventListener(source, 'result', function(data) {
+        set_result(data);
+        enable_button();
+    });
 });
