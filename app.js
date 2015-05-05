@@ -1,7 +1,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var PythonShell = require('python-shell');
-
+var sse = require('./sse');
 
 var app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -22,45 +22,7 @@ app.post('/', function (req, res){
     }, 1);
 });
 
-var openConnections = [];
-
-app.get('/events/', function (req, res) {
-    res.writeHead(200, {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive'
-    });
-    res.write("retry: 10000\n");
-    res.write('\n');
-    openConnections.push(res);
-    write_message(res, openConnections.length-1, "id");
-
-    req.on("close", function() {
-        var toRemove;
-        for (var j =0 ; j < openConnections.length ; j++) {
-            if (openConnections[j] == res) {
-                toRemove =j;
-                break;
-            }
-        }
-        openConnections.splice(j,1);
-        console.log(openConnections.length);
-    });
-});
-
-function write_message(res, message, event) {
-    var d = new Date();
-    res.write('id: ' + d.getMilliseconds() + '\n');
-    res.write('event: ' + event + '\n');
-    res.write('data:' +  message + '\n\n'); // Note the extra newline
-}
-
-function get_progress_func(id) {
-    var res = openConnections[id];
-    return function (name, value) {
-        write_message(res, value, name);
-    }
-}
+var get_progress_func = sse.add_stream(app, "/events/");
 
 function calculate_sum(id, number) {
     py_sum_func(number, get_progress_func(id));
