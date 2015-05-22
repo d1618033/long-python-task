@@ -1,6 +1,20 @@
 var openConnections = {};
 
 module.exports.add_stream = function (app, stream_name) {
+    /*
+    input:
+        app - an express app
+        stream_name - the url of the event stream
+                      (e.g '/stream/')
+    output:
+        a function that gets as input an id
+        and returns a messaging function
+        The messaging function's input:
+            event - the event name (e.g "progress")
+            message - the message to send (e.g "10%")
+        The id is sent to the client when they connect to the stream.
+        The id is sent on the "id" event.
+     */
     app.get(stream_name, function (req, res) {
         res.writeHead(200, {
             'Content-Type': 'text/event-stream',
